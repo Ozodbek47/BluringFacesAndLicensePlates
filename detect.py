@@ -23,7 +23,7 @@ def plot_one_box(x, img):
         # Create ROI coordinates
         topLeft = (int(x[0]), int(x[1]))
         bottomRight = (int(x[2]), int(x[3]))
-        cv2.rectangle(img, topLeft, bottomRight,  (230, 0,0), thickness=1, lineType=cv2.LINE_AA)
+        # cv2.rectangle(img, topLeft, bottomRight,  (230, 0,0), thickness=1, lineType=cv2.LINE_AA)
         x, y = topLeft[0], topLeft[1]
         w, h = bottomRight[0] - topLeft[0], bottomRight[1] - topLeft[1]
 

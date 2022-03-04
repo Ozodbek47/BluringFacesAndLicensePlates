@@ -1,7 +1,5 @@
 import cv2
-from matplotlib.pyplot import plot
 import mediapipe as mp
-import json
 
 def plot_one_box(x, img):
     """
