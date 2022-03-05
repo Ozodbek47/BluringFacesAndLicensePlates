@@ -1,7 +1,7 @@
 # BLURING LICENSE PLATES
 
 ### Download model:
-Download Link:  [LPD Model](https://drive.google.com/file/d/1dnTTVbGq4NLDDlJHMZBAwPcRVjL_yQgZ/view?usp=sharing)
+Download Link:  [detection_best](https://drive.google.com/file/d/1dnTTVbGq4NLDDlJHMZBAwPcRVjL_yQgZ/view?usp=sharing)
 
 ## To blur license plates:
 

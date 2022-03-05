@@ -25,4 +25,4 @@ python3 faceBlur.py
 
 ### SAMPLE OUTPUTS
 
-<img src="yolov5-headBlur/output.png" width="200"/> <img src="yolov5-lpBlur/output.png" width="200"/>
+<img src="yolov5-headBlur/output.png" width="400"/> <img src="yolov5-lpBlur/output.png" width="400"/>
