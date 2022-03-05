@@ -18,50 +18,24 @@ from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 
 def plot_one_blurred_head(x, img):
-    """
-    description: Plots one bounding box on image img,
-                 this function comes from YoLov5 project.
-    param: 
-        x:      a box likes [x1,y1,x2,y2]
-        img:    a opencv image object
-        color:  color to draw rectangle, such as (0,255,0)
-        label:  str
-        line_thickness: int
-    return:
-        no return
-    """
-        
     try:
-        # Create ROI coordinates
         topLeft = (int(x[0]), int(x[1]))
         bottomRight = (int(x[2]), int(x[3]))
         # cv2.rectangle(img, topLeft, bottomRight,  (230, 0,0), thickness=1, lineType=cv2.LINE_AA)
         x, y = topLeft[0], topLeft[1]
         w, h = bottomRight[0] - topLeft[0], bottomRight[1] - topLeft[1]
 
-        # Grab ROI with Numpy slicing and blur
-        # ROI = img[y:y+h, x:x+w]
-        # blur = cv2.GaussianBlur(ROI, (135,135), 0)
-        # #blurTime = cv2.GaussianBlur(img[0:120,0:600], (35,35), 0) 
-
-
-        # # Insert ROI back into image
-        # img[y:y+h, x:x+w] = blur
-        #img[0:120,0:600] = blurTime
-
         p1 = (x, y)
-        #w, h = 100, 100
         p2 = (p1[0] + w, p1[1] + h)
-
 
         circle_center = ((p1[0] + p2[0])// 2, (p1[1] + p2[1]) // 2)
         circle_radius = int(math.sqrt(w * w + h * h) // 2)
         mask_img = np.zeros(img.shape, dtype='uint8')
+
         cv2.circle(mask_img, circle_center, circle_radius, (255, 255, 255), -1)
 
         img_all_blurred = cv2.medianBlur(img, 99)
         img_face_blurred = np.where(mask_img > 0, img_all_blurred, img)
-
     except:
         print("Error")
     return img_face_blurred

@@ -1,20 +1,7 @@
 import cv2
 import mediapipe as mp
 
-def plot_one_box(x, img):
-    """
-    description: Plots one bounding box on image img,
-                 this function comes from YoLov5 project.
-    param: 
-        x:      a box likes [x1,y1,x2,y2]
-        img:    a opencv image object
-        color:  color to draw rectangle, such as (0,255,0)
-        label:  str
-        line_thickness: int
-    return:
-        no return
-    """
-        
+def plot_one_box(x, img):        
     try:
         # Create ROI coordinates
         topLeft = (int(x[0]), int(x[1]))
@@ -23,27 +10,23 @@ def plot_one_box(x, img):
         x, y = topLeft[0], topLeft[1]
         w, h = bottomRight[0] - topLeft[0], bottomRight[1] - topLeft[1]
 
-        # Grab ROI with Numpy slicing and blur
         ROI = img[y:y+h, x:x+w]
         blur = cv2.GaussianBlur(ROI, (135,135), 0)
-        #blurTime = cv2.GaussianBlur(img[0:120,0:600], (35,35), 0) 
-
 
         # Insert ROI back into image
         img[y:y+h, x:x+w] = blur
-        #img[0:120,0:600] = blurTime
     except:
         print("Error")
 
-resultvid = cv2.VideoWriter('DEMO1.mp4',
-                         cv2.VideoWriter_fourcc(*'mp4v'),
-                         25, (1920, 1080))
+# resultvid = cv2.VideoWriter('DEMO.mp4',
+#                          cv2.VideoWriter_fourcc(*'mp4v'),
+#                          25, (1920, 1080))
 
 mp_face_detection = mp.solutions.face_detection
 mp_drawing = mp.solutions.drawing_utils
 
 # For webcam input:
-cap = cv2.VideoCapture("toBlur.mp4")
+cap = cv2.VideoCapture(0)
 with mp_face_detection.FaceDetection(
     model_selection=1, min_detection_confidence=0.4) as face_detection:
   while cap.isOpened():
@@ -82,10 +65,11 @@ with mp_face_detection.FaceDetection(
             plot_one_box(final_box, image)
             # print(f"RBBox: {bb_box}")
     # Flip the image horizontally for a selfie-view display.
-    resultvid.write(image)
+    # resultvid.write(image)
     cv2.imshow('MediaPipe Face Detection', image)
     if cv2.waitKey(5) & 0xFF == 27:
       break
 
 cap.release()
+#resultvid.release()
 cv2.destroyAllWindows()
