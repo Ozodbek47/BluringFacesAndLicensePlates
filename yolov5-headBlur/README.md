@@ -9,6 +9,8 @@ Download Link:  [YOLOv5m-crowd-human](https://drive.google.com/file/d/1gglIwqxaH
 python3 detect.py --weights crowdhuman_yolov5m.pt --source _test/ --heads
 ```
 
+### To change between blurring and pixelation, go to the line 190 - 203 on detect.py
+
 <br/>
 
 **Output (Crowd Human Model)**
