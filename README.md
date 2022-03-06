@@ -1,9 +1,11 @@
-# BLURING HEADS, FACES & LICENSE PLATES IN A VIDEO, IMAGE OR WEBCAM STREAM
+# ANONYMIZING HEADS, FACES & LICENSE PLATES IN A VIDEO, IMAGE OR WEBCAM STREAM
 
-Mass License Plate & Head blurring using Yolov5
+Mass License Plate & Head blurring / pixelation using Yolov5 | Simple face blurring using Mediapipe
 
-Simple face blurring using Mediapipe
-
+## HOW DOES IT WORK?
+<br>
+<img src="Steps.png" />
+<br>
 
 ## For bluring heads, go to "yolov5-headBlur" folder, download the model and run:
 
@@ -26,9 +28,9 @@ python3 faceBlur.py
 ### SAMPLE OUTPUTS
 
 Blurring Result:
-<br>
+<br><br>
 <img src="yolov5-headBlur/output.png" width="400"/> <img src="yolov5-lpBlur/output.png" width="400"/>
-<br>
+<br><br>
 Pixelation Result:
-<br>
-<img src="pixelation.png" />
+<br><br>
+<img src="pixelation.png" width="800" />
