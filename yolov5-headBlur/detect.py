@@ -17,6 +17,32 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 
+def anonymize_face_pixelate(image, blocks=90):
+	# divide the input image into NxN blocks
+	(h, w) = image.shape[:2]
+	xSteps = np.linspace(0, w, blocks + 1, dtype="int")
+	ySteps = np.linspace(0, h, blocks + 1, dtype="int")
+	# loop over the blocks in both the x and y direction
+	for i in range(1, len(ySteps)):
+		for j in range(1, len(xSteps)):
+			# compute the starting and ending (x, y)-coordinates
+			# for the current block
+			startX = xSteps[j - 1]
+			startY = ySteps[i - 1]
+			endX = xSteps[j]
+			endY = ySteps[i]
+			# extract the ROI using NumPy array slicing, compute the
+			# mean of the ROI, and then draw a rectangle with the
+			# mean RGB values over the ROI in the original image
+			roi = image[startY:endY, startX:endX]
+			(B, G, R) = [int(x) for x in cv2.mean(roi)[:3]]
+			pixelated_image = cv2.rectangle(image, (startX, startY), (endX, endY),
+				(B, G, R), -1)
+	# return the pixelated blurred image
+	return pixelated_image
+	# return the pixelated blurred image
+
+
 def plot_one_blurred_head(x, img):
     try:
         topLeft = (int(x[0]), int(x[1]))
@@ -35,6 +61,30 @@ def plot_one_blurred_head(x, img):
         cv2.circle(mask_img, circle_center, circle_radius, (255, 255, 255), -1)
 
         img_all_blurred = cv2.medianBlur(img, 99)
+        img_face_blurred = np.where(mask_img > 0, img_all_blurred, img)
+    except:
+        print("Error")
+    return img_face_blurred
+
+def plot_one_pixelated_head(x, img, pixelated_img):
+    try:
+        topLeft = (int(x[0]), int(x[1]))
+        bottomRight = (int(x[2]), int(x[3]))
+        # cv2.rectangle(img, topLeft, bottomRight,  (230, 0,0), thickness=1, lineType=cv2.LINE_AA)
+        x, y = topLeft[0], topLeft[1]
+        w, h = bottomRight[0] - topLeft[0], bottomRight[1] - topLeft[1]
+
+        p1 = (x, y)
+        p2 = (p1[0] + w, p1[1] + h)
+
+        circle_center = ((p1[0] + p2[0])// 2, (p1[1] + p2[1]) // 2)
+        circle_radius = int(math.sqrt(w * w + h * h) // 2.5)
+        mask_img = np.zeros(img.shape, dtype='uint8')
+
+        cv2.circle(mask_img, circle_center, circle_radius, (255, 255, 255), -1)
+        
+        cv2.circle(img, circle_center, circle_radius+2, (5, 30, 205), -1)
+        img_all_blurred = pixelated_img
         img_face_blurred = np.where(mask_img > 0, img_all_blurred, img)
     except:
         print("Error")
@@ -137,10 +187,23 @@ def detect(save_img=False):
                         label = f'{names[int(cls)]} {conf:.2f}'
                         if opt.heads or opt.person:
                             if 'head' in label and opt.heads:
-                                im0 = plot_one_blurred_head(
+
+                                ### TO PIXELATE HEAD
+                                pixelated_img = im0.copy()
+                                pixelated_img = anonymize_face_pixelate(pixelated_img)
+                                im0 = plot_one_pixelated_head(
                                 xyxy,
-                                im0
+                                im0,
+                                pixelated_img
                                 )
+
+                                ### TO BLUR HEAD
+                                # im0 = plot_one_blurred_head(
+                                # xyxy,
+                                # im0
+                                # )
+
+                                ### TO DRAW A BOUNDING BOX WITHOUT ANY BLURING
                                 #plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)
                             if 'person' in label and opt.person:
                                 plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)

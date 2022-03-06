@@ -5,7 +5,32 @@ Run inference on images, videos, directories, streams, etc.
 Usage:
     $ python path/to/detect.py --source path/to/img.jpg --weights yolov5s.pt --img 640
 """
-def plot_one_box(x, img):
+
+def anonymize_lpd_pixelate(image, blocks=10):
+	# divide the input image into NxN blocks
+	(h, w) = image.shape[:2]
+	xSteps = np.linspace(0, w, blocks + 1, dtype="int")
+	ySteps = np.linspace(0, h, blocks + 1, dtype="int")
+	# loop over the blocks in both the x and y direction
+	for i in range(1, len(ySteps)):
+		for j in range(1, len(xSteps)):
+			# compute the starting and ending (x, y)-coordinates
+			# for the current block
+			startX = xSteps[j - 1]
+			startY = ySteps[i - 1]
+			endX = xSteps[j]
+			endY = ySteps[i]
+			# extract the ROI using NumPy array slicing, compute the
+			# mean of the ROI, and then draw a rectangle with the
+			# mean RGB values over the ROI in the original image
+			roi = image[startY:endY, startX:endX]
+			(B, G, R) = [int(x) for x in cv2.mean(roi)[:3]]
+			pixelated_image = cv2.rectangle(image, (startX, startY), (endX, endY),
+				(B, G, R), -1)
+	# return the pixelated blurred image
+	return pixelated_image
+
+def plot_one_blurred_box(x, img):
     try:
         # Create ROI coordinates
         topLeft = (int(x[0]), int(x[1]))
@@ -17,6 +42,24 @@ def plot_one_box(x, img):
         # Grab ROI with Numpy slicing and blur
         ROI = img[y:y+h, x:x+w]
         blur = cv2.GaussianBlur(ROI, (135,135), 0)
+
+        # Insert ROI back into image
+        img[y:y+h, x:x+w] = blur
+    except:
+        print("Error")
+
+def plot_one_pixelated_box(x, img):
+    try:
+        # Create ROI coordinates
+        topLeft = (int(x[0]), int(x[1]))
+        bottomRight = (int(x[2]), int(x[3]))
+        cv2.rectangle(img, topLeft, bottomRight,  (230, 0,0), thickness=1, lineType=cv2.LINE_AA)
+        x, y = topLeft[0], topLeft[1]
+        w, h = bottomRight[0] - topLeft[0], bottomRight[1] - topLeft[1]
+
+        # Grab ROI with Numpy slicing and blur
+        ROI = img[y:y+h, x:x+w]
+        blur = anonymize_lpd_pixelate(ROI)
 
         # Insert ROI back into image
         img[y:y+h, x:x+w] = blur
@@ -230,10 +273,18 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
-                    plot_one_box(
+
+                    ### TO PIXELATE LICENSE PLATES
+                    plot_one_pixelated_box(
                             xyxy,
                             im0
                             )
+                    
+                    ### TO BLUR LICENSE PLATES
+                    # plot_one_blurred_box(
+                    #         xyxy,
+                    #         im0
+                    #         )
 
                     if save_txt:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
